@@ -139,7 +139,7 @@ const AppointmentsList: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="">Não atribuído</SelectItem>
+                    <SelectItem value="unassigned">Não atribuído</SelectItem>
                     {groomers.map((groomer) => (
                       <SelectItem key={groomer.id} value={groomer.id}>{groomer.name}</SelectItem>
                     ))}

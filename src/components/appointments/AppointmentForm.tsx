@@ -195,7 +195,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose 
               <SelectValue placeholder="Selecione um tosador" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nenhum</SelectItem>
+              <SelectItem value="none">Nenhum</SelectItem>
               {availableGroomers.map(groomer => (
                 <SelectItem key={groomer.id} value={groomer.id}>
                   {groomer.name}
