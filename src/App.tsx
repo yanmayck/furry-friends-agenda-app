@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { StoreProvider } from "@/context/StoreContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Index from "./pages/Index";
+import BanhoTosa from "./pages/BanhoTosa"; // Nova importação
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,15 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Index />
+            </ProtectedRoute>
+          } 
+        />
+        {/* Nova rota para Banho e Tosa */}
+        <Route 
+          path="/banho-tosa" 
+          element={
+            <ProtectedRoute>
+              <BanhoTosa />
             </ProtectedRoute>
           } 
         />
