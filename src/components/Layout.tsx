@@ -1,7 +1,8 @@
 
 import React, { useState } from "react";
-import { Home, Users, Calendar, Scissors } from "lucide-react";
+import { Home, Users, Calendar, Scissors, Package, FileText, LogOut, Dog } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,16 +12,24 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, activePage, setActivePage }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, isAdmin } = useAuth();
   
   const navigationItems = [
-    { key: "dashboard", label: "Dashboard", icon: Home },
-    { key: "clients", label: "Clientes", icon: Users },
-    { key: "appointments", label: "Agendamentos", icon: Calendar },
-    { key: "groomers", label: "Tosadores", icon: Scissors },
+    { key: "dashboard", label: "Dashboard", icon: Home, allowed: true },
+    { key: "clients", label: "Clientes", icon: Users, allowed: true },
+    { key: "pets", label: "Pets", icon: Dog, allowed: true },
+    { key: "appointments", label: "Agendamentos", icon: Calendar, allowed: true },
+    { key: "groomers", label: "Tosadores", icon: Scissors, allowed: true },
+    { key: "packages", label: "Pacotes", icon: Package, allowed: true },
+    { key: "reports", label: "Relatórios", icon: FileText, allowed: isAdmin() },
   ];
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -33,22 +42,41 @@ export const Layout: React.FC<LayoutProps> = ({ children, activePage, setActiveP
             <span>PetShop Manager</span>
           </h1>
         </div>
+        
+        {/* User info */}
+        <div className="p-4 border-b">
+          <div className="text-sm">
+            <p className="font-medium">{user?.username}</p>
+            <p className="text-gray-500">{user?.role === 'admin' ? 'Administrador' : 'Usuário Comum'}</p>
+          </div>
+        </div>
+        
         <nav className="flex-1 px-2 py-4 space-y-1">
-          {navigationItems.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setActivePage(item.key)}
-              className={cn(
-                "flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors",
-                activePage === item.key
-                  ? "bg-petshop-purple text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              )}
-            >
-              <item.icon className="mr-3 h-5 w-5" />
-              {item.label}
-            </button>
-          ))}
+          {navigationItems
+            .filter(item => item.allowed)
+            .map((item) => (
+              <button
+                key={item.key}
+                onClick={() => setActivePage(item.key)}
+                className={cn(
+                  "flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors",
+                  activePage === item.key
+                    ? "bg-petshop-purple text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                <item.icon className="mr-3 h-5 w-5" />
+                {item.label}
+              </button>
+            ))}
+            
+          <button
+            onClick={handleLogout}
+            className="flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors text-gray-600 hover:bg-gray-100 mt-auto"
+          >
+            <LogOut className="mr-3 h-5 w-5" />
+            Sair
+          </button>
         </nav>
       </aside>
 
@@ -65,25 +93,44 @@ export const Layout: React.FC<LayoutProps> = ({ children, activePage, setActiveP
               <span>PetShop Manager</span>
             </h1>
           </div>
+          
+          {/* User info */}
+          <div className="p-4 border-b">
+            <div className="text-sm">
+              <p className="font-medium">{user?.username}</p>
+              <p className="text-gray-500">{user?.role === 'admin' ? 'Administrador' : 'Usuário Comum'}</p>
+            </div>
+          </div>
+          
           <nav className="flex-1 px-2 py-4 space-y-1">
-            {navigationItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => {
-                  setActivePage(item.key);
-                  setIsMobileMenuOpen(false);
-                }}
-                className={cn(
-                  "flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors",
-                  activePage === item.key
-                    ? "bg-petshop-purple text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                )}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.label}
-              </button>
-            ))}
+            {navigationItems
+              .filter(item => item.allowed)
+              .map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => {
+                    setActivePage(item.key);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    "flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors",
+                    activePage === item.key
+                      ? "bg-petshop-purple text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
+                >
+                  <item.icon className="mr-3 h-5 w-5" />
+                  {item.label}
+                </button>
+              ))}
+              
+            <button
+              onClick={handleLogout}
+              className="flex items-center px-4 py-3 w-full text-left rounded-lg transition-colors text-gray-600 hover:bg-gray-100 mt-auto"
+            >
+              <LogOut className="mr-3 h-5 w-5" />
+              Sair
+            </button>
           </nav>
         </aside>
       </div>
@@ -102,6 +149,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, activePage, setActiveP
               <h2 className="text-xl font-semibold text-gray-800">
                 {navigationItems.find(item => item.key === activePage)?.label || "Dashboard"}
               </h2>
+            </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium">{user?.username}</p>
+                <p className="text-xs text-gray-500">{user?.role === 'admin' ? 'Administrador' : 'Usuário Comum'}</p>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="p-2 rounded-md hover:bg-gray-100"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </header>

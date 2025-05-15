@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/components/ui/use-toast";
 
 interface ClientFormProps {
   client?: Client;
@@ -13,11 +15,13 @@ interface ClientFormProps {
 
 const ClientForm: React.FC<ClientFormProps> = ({ client, onClose }) => {
   const { addClient, updateClient } = useStore();
+  const { isAdmin } = useAuth();
   const isEditing = !!client;
   
   const [formData, setFormData] = useState({
     tutorName: "",
     petName: "",
+    cpf: "",
     phone: "",
     email: "",
     address: "",
@@ -29,6 +33,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ client, onClose }) => {
       setFormData({
         tutorName: client.tutorName,
         petName: client.petName,
+        cpf: client.cpf,
         phone: client.phone,
         email: client.email,
         address: client.address,
@@ -38,13 +43,65 @@ const ClientForm: React.FC<ClientFormProps> = ({ client, onClose }) => {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === "cpf") {
+      // Only allow numbers and limit to 11 characters
+      const numericValue = value.replace(/\D/g, '').slice(0, 11);
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  
+  const formatCpf = (cpf: string): string => {
+    if (!cpf) return "";
+    cpf = cpf.replace(/\D/g, '');
+    
+    if (cpf.length <= 3) {
+      return cpf;
+    } else if (cpf.length <= 6) {
+      return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    } else if (cpf.length <= 9) {
+      return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    } else {
+      return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+    }
+  };
+
+  const validateCpf = (cpf: string): boolean => {
+    if (!cpf) return false;
+    cpf = cpf.replace(/\D/g, '');
+    return cpf.length === 11;
   };
   
   const handleSubmit = () => {
     // Validate form
     if (!formData.tutorName.trim() || !formData.petName.trim() || !formData.phone.trim()) {
-      alert("Por favor, preencha os campos obrigatórios: Nome do Tutor, Nome do Pet e Telefone.");
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha os campos obrigatórios: Nome do Tutor, Nome do Pet e Telefone.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate CPF
+    if (!validateCpf(formData.cpf)) {
+      toast({
+        title: "CPF inválido",
+        description: "Por favor, informe um CPF válido com 11 dígitos.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Only allow admin to add/edit clients
+    if (!isAdmin()) {
+      toast({
+        title: "Permissão negada",
+        description: "Apenas administradores podem cadastrar ou editar clientes.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -59,6 +116,20 @@ const ClientForm: React.FC<ClientFormProps> = ({ client, onClose }) => {
     
     onClose();
   };
+  
+  if (!isAdmin()) {
+    return (
+      <Card className="p-6">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">Permissão negada</h3>
+          <p className="text-sm text-gray-500 mt-2">
+            Apenas administradores podem cadastrar ou editar clientes.
+          </p>
+          <Button className="mt-4" onClick={onClose}>Voltar</Button>
+        </div>
+      </Card>
+    );
+  }
   
   return (
     <Card className="p-4">
@@ -86,6 +157,19 @@ const ClientForm: React.FC<ClientFormProps> = ({ client, onClose }) => {
             placeholder="Nome do pet" 
             required 
           />
+        </div>
+        
+        <div>
+          <Label htmlFor="cpf">CPF do Tutor *</Label>
+          <Input 
+            id="cpf" 
+            name="cpf" 
+            value={formatCpf(formData.cpf)}
+            onChange={handleChange} 
+            placeholder="000.000.000-00"
+            required 
+          />
+          <p className="text-xs text-gray-500 mt-1">Necessário para emissão de nota fiscal</p>
         </div>
         
         <div>
