@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ServiceType, TransportType, useStore } from "@/context/StoreContext";
+import { useStore } from "@/context/StoreContext";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormFieldProps } from "./types";
@@ -17,7 +17,7 @@ export const AppointmentServiceFields: React.FC<FormFieldProps> = ({
         <Label htmlFor="packageId">Pacote</Label>
         <Select 
           value={formData.packageId || "none"} 
-          onValueChange={(value) => handleSelectChange("packageId", value)}
+          onValueChange={(value) => handleSelectChange("packageId", value === "none" ? null : value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecione um pacote" />
@@ -33,12 +33,12 @@ export const AppointmentServiceFields: React.FC<FormFieldProps> = ({
         </Select>
       </div>
       
-      {!formData.packageId ? (
+      {!formData.packageId || formData.packageId === "none" ? (
         <div>
           <Label htmlFor="serviceType">Tipo de Serviço *</Label>
           <Select 
             value={formData.serviceType || "bath"} 
-            onValueChange={(value) => handleSelectChange("serviceType", value as ServiceType)}
+            onValueChange={(value) => handleSelectChange("serviceType", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o serviço" />
@@ -55,7 +55,7 @@ export const AppointmentServiceFields: React.FC<FormFieldProps> = ({
           <Label htmlFor="transportType">Tipo de Transporte</Label>
           <Select 
             value={formData.transportType || "client"} 
-            onValueChange={(value) => handleSelectChange("transportType", value as TransportType)}
+            onValueChange={(value) => handleSelectChange("transportType", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o transporte" />

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { Groomer, useStore } from "@/context/StoreContext";
+import { useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 
 interface GroomerFormProps {
-  groomer?: Groomer;
+  groomer?: any;
   onClose: () => void;
   showStatusOnly?: boolean;
 }

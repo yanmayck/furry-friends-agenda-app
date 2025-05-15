@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext } from "react";
 import { ClientProvider, useClients } from "./clients/ClientContext";
 import { PetProvider, usePets } from "./pets/PetContext";
@@ -8,15 +7,31 @@ import { AppointmentProvider, useAppointments } from "./appointments/Appointment
 import { CommissionProvider, useCommissions } from "./commissions/CommissionContext";
 import { toast } from "@/components/ui/use-toast";
 import { 
-  Appointment, 
-  AppointmentStatus, 
   Client, 
   Groomer, 
   Package, 
   Pet, 
-  ServiceType, 
-  TransportType
+  generateId
 } from "./models/types";
+
+// Define custom types for this context
+export type AppointmentStatus = "waiting" | "progress" | "completed";
+export type ServiceType = "bath" | "grooming" | "both" | "package";
+export type TransportType = "client" | "pickup";
+
+export interface Appointment {
+  id: string;
+  clientId: string;
+  petName: string;
+  date: string;
+  time: string;
+  serviceType: ServiceType;
+  groomerId: string | null;
+  status: AppointmentStatus;
+  packageId?: string | null;
+  transportType?: TransportType;
+  price: number;
+}
 
 // Define the combined context type
 interface StoreContextType {
@@ -180,12 +195,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 // Export types from models for easier access
 export type {
-  Appointment,
-  AppointmentStatus,
   Client,
   Groomer,
   Package,
   Pet,
-  ServiceType,
-  TransportType
 };

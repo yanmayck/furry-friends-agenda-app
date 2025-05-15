@@ -1,24 +1,25 @@
 import React, { useState } from "react";
-import { Appointment, AppointmentStatus, useStore } from "@/context/StoreContext";
+import { useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Edit, Trash2, Plus, Calendar } from "lucide-react";
 import AppointmentForm from "./AppointmentForm";
+import { AppointmentStatus } from "@/context/StoreContext";
 
 const AppointmentsList: React.FC = () => {
   const { appointments, deleteAppointment, groomers, clients, updateAppointment, autoAssignGroomer, getClientById, getGroomerById } = useStore();
   
   const [showForm, setShowForm] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>(undefined);
+  const [editingAppointment, setEditingAppointment] = useState<any>(undefined);
   
   // Filters
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">("all");
   const [groomerFilter, setGroomerFilter] = useState("all");
 
-  const handleEditAppointment = (appointment: Appointment) => {
+  const handleEditAppointment = (appointment: any) => {
     setEditingAppointment(appointment);
     setShowForm(true);
   };

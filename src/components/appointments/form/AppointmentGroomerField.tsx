@@ -1,6 +1,6 @@
 
 import React from "react";
-import { AppointmentStatus, useStore } from "@/context/StoreContext";
+import { useStore } from "@/context/StoreContext";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormFieldProps } from "./types";
@@ -38,7 +38,7 @@ export const AppointmentGroomerField: React.FC<FormFieldProps & {
           <Label htmlFor="status">Status</Label>
           <Select 
             value={formData.status || "waiting"} 
-            onValueChange={(value) => handleSelectChange("status", value as AppointmentStatus)}
+            onValueChange={(value) => handleSelectChange("status", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o status" />

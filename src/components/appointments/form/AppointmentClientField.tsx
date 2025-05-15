@@ -1,6 +1,6 @@
 
 import React, { useEffect } from "react";
-import { Client, useStore } from "@/context/StoreContext";
+import { useStore } from "@/context/StoreContext";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormFieldProps } from "./types";
@@ -23,7 +23,7 @@ export const AppointmentClientField: React.FC<FormFieldProps & {
       <div>
         <Label htmlFor="clientId">Cliente *</Label>
         <Select 
-          value={formData.clientId || ""} 
+          value={formData.clientId || "no_client_selected"} 
           onValueChange={(value) => handleSelectChange("clientId", value)}
         >
           <SelectTrigger>

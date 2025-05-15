@@ -1,5 +1,5 @@
 
-import { Appointment, AppointmentStatus, ServiceType, TransportType } from "@/context/StoreContext";
+import { ServiceType, TransportType, AppointmentStatus } from "@/context/StoreContext";
 import React from "react";
 
 export interface AppointmentFormData {

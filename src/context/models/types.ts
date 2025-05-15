@@ -61,25 +61,5 @@ export interface Package {
   pickupPrice: number;
 }
 
-// Appointment types
-export type AppointmentStatus = "waiting" | "progress" | "completed";
-export type ServiceType = "bath" | "grooming" | "both" | "package";
-export type TransportType = "client" | "pickup";
-
-// Appointment model
-export interface Appointment {
-  id: string;
-  clientId: string;
-  petName: string;
-  date: string;
-  time: string;
-  serviceType: ServiceType;
-  groomerId: string | null;
-  status: AppointmentStatus;
-  packageId?: string | null;
-  transportType?: TransportType;
-  price: number;
-}
-
 // Utility function for generating IDs
 export const generateId = () => Math.random().toString(36).slice(2, 11);
