@@ -2,7 +2,7 @@
 import React, { createContext, useContext } from "react";
 
 // Import types
-import {
+import type {
   Client,
   Pet,
   Groomer,
@@ -23,7 +23,7 @@ import { AppointmentProvider, useAppointments } from "./appointments/Appointment
 import { CommissionProvider, useCommissions } from "./commissions/CommissionContext";
 
 // Re-export all types for backwards compatibility
-export {
+export type {
   Client,
   Pet,
   Groomer,
