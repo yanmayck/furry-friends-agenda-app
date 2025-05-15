@@ -1,4 +1,82 @@
 
+import React, { createContext, useContext } from "react";
+import { ClientProvider, useClients } from "./clients/ClientContext";
+import { PetProvider, usePets } from "./pets/PetContext";
+import { GroomerProvider, useGroomers } from "./groomers/GroomerContext";
+import { PackageProvider, usePackages } from "./packages/PackageContext";
+import { AppointmentProvider, useAppointments } from "./appointments/AppointmentContext";
+import { CommissionProvider, useCommissions } from "./commissions/CommissionContext";
+import { toast } from "@/components/ui/use-toast";
+import { 
+  Appointment, 
+  AppointmentStatus, 
+  Client, 
+  Groomer, 
+  Package, 
+  Pet, 
+  ServiceType, 
+  TransportType
+} from "./models/types";
+
+// Define the combined context type
+interface StoreContextType {
+  // Client context
+  clients: Client[];
+  addClient: (client: Omit<Client, "id">) => void;
+  updateClient: (client: Client) => void;
+  deleteClient: (id: string) => void;
+  getClientById: (id: string) => Client | undefined;
+  
+  // Pet context
+  pets: Pet[];
+  addPet: (pet: Omit<Pet, "id">) => void;
+  updatePet: (pet: Pet) => void;
+  deletePet: (id: string) => void;
+  getPetById: (id: string) => Pet | undefined;
+  getPetsByClientId: (clientId: string) => Pet[];
+  
+  // Package context
+  packages: Package[];
+  addPackage: (pkg: Omit<Package, "id">) => void;
+  updatePackage: (pkg: Package) => void;
+  deletePackage: (id: string) => void;
+  getPackageById: (id: string) => Package | undefined;
+  
+  // Groomer context
+  groomers: Groomer[];
+  addGroomer: (groomer: Omit<Groomer, "id">) => void;
+  updateGroomer: (groomer: Groomer) => void;
+  deleteGroomer: (id: string) => void;
+  getGroomerById: (id: string) => Groomer | undefined;
+  getGroomerWorkload: (groomerId: string) => number;
+  
+  // Appointment context
+  appointments: Appointment[];
+  addAppointment: (appointment: Omit<Appointment, "id">) => void;
+  updateAppointment: (appointment: Appointment) => void;
+  deleteAppointment: (id: string) => void;
+  autoAssignGroomer: (appointmentId: string) => void;
+  
+  // Commission context
+  commissions: any[];
+  addCommission: (commission: Omit<any, "id">) => void;
+  getCommissionsByGroomerId: (groomerId: string) => any[];
+  getTotalCommissionsByGroomerId: (groomerId: string, month?: number, year?: number) => number;
+  getCommissionsByMonth: (month: number, year: number) => any[];
+}
+
+// Create the context
+const StoreContext = createContext<StoreContextType | undefined>(undefined);
+
+// Custom hook to use the store context
+export const useStore = () => {
+  const context = useContext(StoreContext);
+  if (!context) {
+    throw new Error("useStore must be used within a StoreProvider");
+  }
+  return context;
+};
+
 // Inner provider that consumes all the individual hooks and provides the combined context
 const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Get all the individual contexts
@@ -77,4 +155,37 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
       {children}
     </StoreContext.Provider>
   );
+};
+
+// Outer provider that sets up all the individual providers
+export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <ClientProvider>
+      <PetProvider>
+        <GroomerProvider>
+          <CommissionProvider>
+            <AppointmentProvider>
+              <PackageProvider>
+                <StoreProviderInner>
+                  {children}
+                </StoreProviderInner>
+              </PackageProvider>
+            </AppointmentProvider>
+          </CommissionProvider>
+        </GroomerProvider>
+      </PetProvider>
+    </ClientProvider>
+  );
+};
+
+// Export types from models for easier access
+export type {
+  Appointment,
+  AppointmentStatus,
+  Client,
+  Groomer,
+  Package,
+  Pet,
+  ServiceType,
+  TransportType
 };
