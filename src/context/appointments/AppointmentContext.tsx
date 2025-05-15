@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Appointment, AppointmentStatus } from "../models/types";
+import { Appointment } from "../models/types";
 import { generateId } from "../models/types";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { toast } from "@/components/ui/use-toast";
@@ -27,7 +27,7 @@ export const useAppointments = () => {
 
 export const AppointmentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const { groomers, getGroomerById, getGroomerWorkload } = useGroomers();
+  const { groomers, getGroomerById } = useGroomers();
   const { addCommission } = useCommissions();
 
   // Load appointments from localStorage on mount
@@ -108,17 +108,18 @@ export const AppointmentProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return;
     }
     
-    // Find the groomer with the least workload
-    let leastBusyGroomer = availableGroomers[0];
-    let minWorkload = getGroomerWorkload(leastBusyGroomer.id, appointments);
-    
-    availableGroomers.forEach(groomer => {
-      const workload = getGroomerWorkload(groomer.id, appointments);
-      if (workload < minWorkload) {
-        leastBusyGroomer = groomer;
-        minWorkload = workload;
-      }
+    // Find the groomer with the least workload by counting their active appointments
+    let groomersWithWorkload = availableGroomers.map(groomer => {
+      const workload = appointments.filter(
+        appointment => appointment.groomerId === groomer.id && appointment.status !== "completed"
+      ).length;
+      
+      return { groomer, workload };
     });
+    
+    // Sort by workload (ascending)
+    groomersWithWorkload.sort((a, b) => a.workload - b.workload);
+    const leastBusyGroomer = groomersWithWorkload[0].groomer;
     
     // Update the appointment with the assigned groomer
     setAppointments(

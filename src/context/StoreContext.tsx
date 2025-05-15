@@ -96,7 +96,7 @@ export const useStore = () => {
 };
 
 // Combined provider that wraps all individual providers
-// Important: CommissionProvider must come before AppointmentProvider, which must come after GroomerProvider
+// Carefully ordered to avoid circular dependencies
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <ClientProvider>
@@ -125,14 +125,26 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
   const appointmentContext = useAppointments();
   const commissionContext = useCommissions();
 
-  // Modify getGroomerWorkload to pass appointments
+  // Add specific custom functions that combine multiple contexts
+  
+  // Compute groomer workload without cyclic dependencies
   const getGroomerWorkload = (groomerId: string) => {
-    return groomerContext.getGroomerWorkload(groomerId, appointmentContext.appointments);
+    if (!appointmentContext.appointments) return 0;
+    
+    return appointmentContext.appointments.filter(
+      appointment => 
+        appointment.groomerId === groomerId && 
+        appointment.status !== "completed"
+    ).length;
   };
 
   // Check if a groomer has appointments before deleting
   const deleteGroomer = (id: string) => {
-    const hasAssignedAppointments = appointmentContext.appointments.some(appointment => appointment.groomerId === id);
+    if (!appointmentContext.appointments) return;
+    
+    const hasAssignedAppointments = appointmentContext.appointments.some(
+      appointment => appointment.groomerId === id
+    );
     
     if (hasAssignedAppointments) {
       toast({
