@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Appointment, AppointmentStatus, useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
@@ -62,8 +61,14 @@ const AppointmentsList: React.FC = () => {
     }
     
     // Filter by groomer
-    if (groomerFilter !== "all" && appointment.groomerId !== groomerFilter) {
-      return false;
+    if (groomerFilter !== "all" && groomerFilter !== "unassigned") {
+      if (appointment.groomerId !== groomerFilter) {
+        return false;
+      }
+    } else if (groomerFilter === "unassigned") {
+      if (appointment.groomerId) {
+        return false;
+      }
     }
     
     return true;
