@@ -17,7 +17,7 @@ export const AppointmentGroomerField: React.FC<FormFieldProps & {
         <Label htmlFor="groomerId">Tosador</Label>
         <Select 
           value={formData.groomerId || "none"} 
-          onValueChange={(value) => handleSelectChange("groomerId", value)}
+          onValueChange={(value) => handleSelectChange("groomerId", value === "none" ? null : value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecione um tosador" />
@@ -37,7 +37,7 @@ export const AppointmentGroomerField: React.FC<FormFieldProps & {
         <div>
           <Label htmlFor="status">Status</Label>
           <Select 
-            value={formData.status} 
+            value={formData.status || "waiting"} 
             onValueChange={(value) => handleSelectChange("status", value as AppointmentStatus)}
           >
             <SelectTrigger>

@@ -37,7 +37,7 @@ export const AppointmentServiceFields: React.FC<FormFieldProps> = ({
         <div>
           <Label htmlFor="serviceType">Tipo de Serviço *</Label>
           <Select 
-            value={formData.serviceType} 
+            value={formData.serviceType || "bath"} 
             onValueChange={(value) => handleSelectChange("serviceType", value as ServiceType)}
           >
             <SelectTrigger>
@@ -54,7 +54,7 @@ export const AppointmentServiceFields: React.FC<FormFieldProps> = ({
         <div>
           <Label htmlFor="transportType">Tipo de Transporte</Label>
           <Select 
-            value={formData.transportType} 
+            value={formData.transportType || "client"} 
             onValueChange={(value) => handleSelectChange("transportType", value as TransportType)}
           >
             <SelectTrigger>

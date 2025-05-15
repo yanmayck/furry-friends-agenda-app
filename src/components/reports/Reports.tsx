@@ -207,7 +207,7 @@ const Reports: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                    Nenhum dato disponível para este período.
+                    Nenhum dado disponível para este período.
                   </td>
                 </tr>
               )}
