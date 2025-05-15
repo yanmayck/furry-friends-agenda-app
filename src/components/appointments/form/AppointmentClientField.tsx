@@ -23,7 +23,7 @@ export const AppointmentClientField: React.FC<FormFieldProps & {
       <div>
         <Label htmlFor="clientId">Cliente *</Label>
         <Select 
-          value={formData.clientId} 
+          value={formData.clientId || ""} 
           onValueChange={(value) => handleSelectChange("clientId", value)}
         >
           <SelectTrigger>

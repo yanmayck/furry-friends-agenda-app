@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Appointment, AppointmentStatus, useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
