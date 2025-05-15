@@ -95,21 +95,22 @@ export const useStore = () => {
 };
 
 // Combined provider that wraps all individual providers
+// Fixed order: GroomerProvider needs to be before AppointmentProvider
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <AppointmentProvider>
-      <ClientProvider>
-        <CommissionProvider>
-          <GroomerProvider>
-            <PackageProvider>
-              <PetProvider>
+    <ClientProvider>
+      <PetProvider>
+        <GroomerProvider>
+          <PackageProvider>
+            <CommissionProvider>
+              <AppointmentProvider>
                 <StoreProviderInner>{children}</StoreProviderInner>
-              </PetProvider>
-            </PackageProvider>
-          </GroomerProvider>
-        </CommissionProvider>
-      </ClientProvider>
-    </AppointmentProvider>
+              </AppointmentProvider>
+            </CommissionProvider>
+          </PackageProvider>
+        </GroomerProvider>
+      </PetProvider>
+    </ClientProvider>
   );
 };
 
