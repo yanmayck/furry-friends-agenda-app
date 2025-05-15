@@ -4,7 +4,6 @@ import { Groomer } from "../models/types";
 import { generateId } from "../models/types";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { toast } from "@/components/ui/use-toast";
-import { useAppointments } from "../appointments/AppointmentContext";
 
 interface GroomerContextType {
   groomers: Groomer[];
@@ -12,7 +11,7 @@ interface GroomerContextType {
   updateGroomer: (groomer: Groomer) => void;
   deleteGroomer: (id: string) => void;
   getGroomerById: (id: string) => Groomer | undefined;
-  getGroomerWorkload: (groomerId: string) => number;
+  getGroomerWorkload: (groomerId: string, appointments: any[]) => number;
 }
 
 const GroomerContext = createContext<GroomerContextType | undefined>(undefined);
@@ -39,14 +38,12 @@ export const GroomerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     saveToStorage("petshop-groomers", groomers);
   }, [groomers]);
 
-  // We need appointments to calculate groomer workload
-  const { appointments } = useAppointments();
-
   const getGroomerById = (id: string) => {
     return groomers.find(groomer => groomer.id === id);
   };
   
-  const getGroomerWorkload = (groomerId: string) => {
+  // Modified to accept appointments as a parameter instead of using useAppointments
+  const getGroomerWorkload = (groomerId: string, appointments: any[]) => {
     return appointments.filter(
       appointment => appointment.groomerId === groomerId && appointment.status !== "completed"
     ).length;
@@ -74,18 +71,8 @@ export const GroomerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
   
   const deleteGroomer = (id: string) => {
-    // Check if there are any appointments assigned to this groomer
-    const hasAssignedAppointments = appointments.some(appointment => appointment.groomerId === id);
-    
-    if (hasAssignedAppointments) {
-      toast({
-        title: "Não é possível excluir",
-        description: "Este tosador tem agendamentos atribuídos. Por favor, reatribua esses agendamentos primeiro.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+    // We don't check for appointments here to avoid circular dependency
+    // This check will be handled at a higher level in StoreProviderInner
     const groomerToDelete = groomers.find(groomer => groomer.id === id);
     setGroomers(groomers.filter(groomer => groomer.id !== id));
     

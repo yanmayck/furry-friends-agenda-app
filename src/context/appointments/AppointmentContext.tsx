@@ -110,10 +110,10 @@ export const AppointmentProvider: React.FC<{ children: React.ReactNode }> = ({ c
     
     // Find the groomer with the least workload
     let leastBusyGroomer = availableGroomers[0];
-    let minWorkload = getGroomerWorkload(leastBusyGroomer.id);
+    let minWorkload = getGroomerWorkload(leastBusyGroomer.id, appointments);
     
     availableGroomers.forEach(groomer => {
-      const workload = getGroomerWorkload(groomer.id);
+      const workload = getGroomerWorkload(groomer.id, appointments);
       if (workload < minWorkload) {
         leastBusyGroomer = groomer;
         minWorkload = workload;

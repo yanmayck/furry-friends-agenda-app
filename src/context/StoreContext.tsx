@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 // Import types
 import type {
@@ -95,20 +96,20 @@ export const useStore = () => {
 };
 
 // Combined provider that wraps all individual providers
-// Fixed order: GroomerProvider needs to be before AppointmentProvider
+// Important: CommissionProvider must come before AppointmentProvider, which must come after GroomerProvider
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <ClientProvider>
       <PetProvider>
-        <GroomerProvider>
-          <PackageProvider>
+        <PackageProvider>
+          <GroomerProvider>
             <CommissionProvider>
               <AppointmentProvider>
                 <StoreProviderInner>{children}</StoreProviderInner>
               </AppointmentProvider>
             </CommissionProvider>
-          </PackageProvider>
-        </GroomerProvider>
+          </GroomerProvider>
+        </PackageProvider>
       </PetProvider>
     </ClientProvider>
   );
@@ -124,14 +125,37 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
   const appointmentContext = useAppointments();
   const commissionContext = useCommissions();
 
+  // Modify getGroomerWorkload to pass appointments
+  const getGroomerWorkload = (groomerId: string) => {
+    return groomerContext.getGroomerWorkload(groomerId, appointmentContext.appointments);
+  };
+
+  // Check if a groomer has appointments before deleting
+  const deleteGroomer = (id: string) => {
+    const hasAssignedAppointments = appointmentContext.appointments.some(appointment => appointment.groomerId === id);
+    
+    if (hasAssignedAppointments) {
+      toast({
+        title: "Não é possível excluir",
+        description: "Este tosador tem agendamentos atribuídos. Por favor, reatribua esses agendamentos primeiro.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    groomerContext.deleteGroomer(id);
+  };
+
   // Combine all contexts into a single value
   const value: StoreContextType = {
     ...clientContext,
     ...petContext,
-    ...groomerContext,
     ...packageContext,
-    ...appointmentContext,
     ...commissionContext,
+    ...appointmentContext,
+    ...groomerContext,
+    getGroomerWorkload,
+    deleteGroomer,
   };
 
   return (
