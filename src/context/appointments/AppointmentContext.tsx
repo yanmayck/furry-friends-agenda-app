@@ -1,7 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Appointment } from "../models/types";
-import { generateId } from "../models/types";
+import { Appointment, generateId } from "../models/types";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { toast } from "@/components/ui/use-toast";
 import { useGroomers } from "../groomers/GroomerContext";

@@ -10,7 +10,8 @@ import {
   Client, 
   Groomer, 
   Package, 
-  Pet, 
+  Pet,
+  Appointment,
   generateId
 } from "./models/types";
 
@@ -18,20 +19,6 @@ import {
 export type AppointmentStatus = "waiting" | "progress" | "completed";
 export type ServiceType = "bath" | "grooming" | "both" | "package";
 export type TransportType = "client" | "pickup";
-
-export interface Appointment {
-  id: string;
-  clientId: string;
-  petName: string;
-  date: string;
-  time: string;
-  serviceType: ServiceType;
-  groomerId: string | null;
-  status: AppointmentStatus;
-  packageId?: string | null;
-  transportType?: TransportType;
-  price: number;
-}
 
 // Define the combined context type
 interface StoreContextType {
@@ -199,4 +186,5 @@ export type {
   Groomer,
   Package,
   Pet,
+  Appointment,
 };

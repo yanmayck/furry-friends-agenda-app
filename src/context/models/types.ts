@@ -1,5 +1,6 @@
 
 // Types and interfaces for the store
+import { ServiceType, TransportType, AppointmentStatus } from "../StoreContext";
 
 // Client model
 export interface Client {
@@ -38,6 +39,21 @@ export interface Groomer {
   name: string;
   status: "available" | "busy";
   commissionPercentage: number;
+}
+
+// Appointment model
+export interface Appointment {
+  id: string;
+  clientId: string;
+  petName: string;
+  date: string;
+  time: string;
+  serviceType: ServiceType;
+  groomerId: string | null;
+  status: AppointmentStatus;
+  packageId?: string | null;
+  transportType?: TransportType;
+  price: number;
 }
 
 // Commission model
