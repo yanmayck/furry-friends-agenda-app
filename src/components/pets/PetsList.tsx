@@ -112,7 +112,7 @@ const PetsList: React.FC = () => {
                   <SelectValue placeholder="Filtrar por tutor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tutores</SelectItem>
+                  <SelectItem value="all_clients">Todos os tutores</SelectItem>
                   {clients.map((client: Client) => (
                     <SelectItem key={client.id} value={client.id}>{client.tutorName}</SelectItem>
                   ))}
