@@ -4,7 +4,6 @@ import { Package } from "../models/types";
 import { generateId } from "../models/types";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { toast } from "@/components/ui/use-toast";
-import { useAppointments } from "../appointments/AppointmentContext";
 
 interface PackageContextType {
   packages: Package[];
@@ -26,7 +25,6 @@ export const usePackages = () => {
 
 export const PackageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [packages, setPackages] = useState<Package[]>([]);
-  const { appointments } = useAppointments();
 
   // Load packages from localStorage on mount and initialize default package if none exists
   useEffect(() => {
@@ -80,18 +78,8 @@ export const PackageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
   
   const deletePackage = (id: string) => {
-    // Check if there are any appointments using this package
-    const hasAppointments = appointments.some(appointment => appointment.packageId === id);
-    
-    if (hasAppointments) {
-      toast({
-        title: "Não é possível excluir",
-        description: "Este pacote está sendo usado em agendamentos. Por favor, remova ou atualize esses agendamentos primeiro.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+    // We'll check if there are any appointments using this package at the StoreContext level
+    // to avoid circular dependencies
     const packageToDelete = packages.find(pkg => pkg.id === id);
     setPackages(packages.filter(pkg => pkg.id !== id));
     
