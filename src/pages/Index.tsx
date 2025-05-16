@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import Dashboard from "@/components/Dashboard";
 import ClientsList from "@/components/clients/ClientsList";
@@ -9,31 +9,37 @@ import PetsList from "@/components/pets/PetsList";
 import PackagesList from "@/components/packages/PackagesList";
 import Reports from "@/components/reports/Reports";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Index: React.FC = () => {
-  const [activePage, setActivePage] = useState("dashboard");
-  const { isAdmin } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
+  const [activePage, setActivePage] = useState("dashboard");
   
-  // Redireciona para página de banho e tosa quando essa opção é selecionada
+  // Set activePage based on current location
+  useEffect(() => {
+    const path = location.pathname.replace('/', '');
+    if (path === '') {
+      setActivePage("dashboard");
+    } else {
+      setActivePage(path);
+    }
+  }, [location]);
+  
+  // Handle page navigation
   const handlePageChange = (page: string) => {
-    if (page === "banho-tosa") {
-      navigate('/banho-tosa');
-      return;
+    if (page === "dashboard") {
+      navigate('/');
+    } else {
+      navigate(`/${page}`);
     }
     setActivePage(page);
   };
   
   return (
     <Layout activePage={activePage} setActivePage={handlePageChange}>
-      {activePage === "dashboard" && <Dashboard />}
-      {activePage === "clients" && <ClientsList />}
-      {activePage === "pets" && <PetsList />}
-      {activePage === "appointments" && <AppointmentsList />}
-      {activePage === "groomers" && <GroomersList />}
-      {activePage === "packages" && <PackagesList />}
-      {activePage === "reports" && isAdmin() && <Reports />}
+      <Dashboard />
     </Layout>
   );
 };
