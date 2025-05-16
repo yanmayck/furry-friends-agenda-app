@@ -7,9 +7,15 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { StoreProvider } from "@/context/StoreContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Index from "./pages/Index";
-import BanhoTosa from "./pages/BanhoTosa"; // Nova importação
+import BanhoTosa from "./pages/BanhoTosa";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import ClientsList from "./components/clients/ClientsList"; 
+import PetsList from "./components/pets/PetsList";
+import AppointmentsList from "./components/appointments/AppointmentsList";
+import GroomersList from "./components/groomers/GroomersList";
+import PackagesList from "./components/packages/PackagesList";
+import Reports from "./components/reports/Reports";
 
 const queryClient = new QueryClient();
 
@@ -26,29 +32,28 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Main App component
 const AppContent = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" replace />} />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          } 
-        />
-        {/* Nova rota para Banho e Tosa */}
-        <Route 
-          path="/banho-tosa" 
-          element={
-            <ProtectedRoute>
-              <BanhoTosa />
-            </ProtectedRoute>
-          } 
-        />
+        
+        <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        
+        {/* Rotas individuais para cada seção */}
+        <Route path="/clients" element={<ProtectedRoute><ClientsList /></ProtectedRoute>} />
+        <Route path="/pets" element={<ProtectedRoute><PetsList /></ProtectedRoute>} />
+        <Route path="/appointments" element={<ProtectedRoute><AppointmentsList /></ProtectedRoute>} />
+        <Route path="/groomers" element={<ProtectedRoute><GroomersList /></ProtectedRoute>} />
+        <Route path="/packages" element={<ProtectedRoute><PackagesList /></ProtectedRoute>} />
+        <Route path="/banho-tosa" element={<ProtectedRoute><BanhoTosa /></ProtectedRoute>} />
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            {isAdmin ? <Reports /> : <Navigate to="/" replace />}
+          </ProtectedRoute>
+        } />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
