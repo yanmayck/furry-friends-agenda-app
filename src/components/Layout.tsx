@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Sheet,
@@ -12,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
   Users,
-  Paw,
+  PawPrint,
   Calendar as CalendarIcon,
   User as UserIcon,
   Package as PackageIcon,
@@ -36,9 +37,9 @@ const Layout: React.FC<LayoutProps> = ({ children, activePage, setActivePage }) 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
     { id: "clients", label: "Clientes", icon: <Users className="h-4 w-4" /> },
-    { id: "pets", label: "Pets", icon: <Paw className="h-4 w-4" /> },
+    { id: "pets", label: "Pets", icon: <PawPrint className="h-4 w-4" /> },
     { id: "appointments", label: "Agendamentos", icon: <CalendarIcon className="h-4 w-4" /> },
-    { id: "banho-tosa", label: "Banho e Tosa", icon: <Scissors className="h-4 w-4" /> }, // Novo item
+    { id: "banho-tosa", label: "Banho e Tosa", icon: <Scissors className="h-4 w-4" /> },
     { id: "groomers", label: "Tosadores", icon: <UserIcon className="h-4 w-4" /> },
     { id: "packages", label: "Pacotes", icon: <PackageIcon className="h-4 w-4" /> },
   ];
@@ -111,10 +112,10 @@ const Layout: React.FC<LayoutProps> = ({ children, activePage, setActivePage }) 
           <div className="flex items-center space-x-2 mb-2">
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>{user?.email[0].toUpperCase()}</AvatarFallback>
+              <AvatarFallback>{user?.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium leading-none">{user?.email}</p>
+              <p className="text-sm font-medium leading-none">{user?.username}</p>
               <p className="text-sm text-gray-500 leading-none">Admin</p>
             </div>
           </div>
