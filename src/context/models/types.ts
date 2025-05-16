@@ -77,5 +77,14 @@ export interface Package {
   pickupPrice: number;
 }
 
+// Groomer Points model
+export interface GroomerPoint {
+  id: string;
+  groomerId: string;
+  appointmentId: string;
+  points: number;
+  date: string;
+}
+
 // Utility function for generating IDs
 export const generateId = () => Math.random().toString(36).slice(2, 11);

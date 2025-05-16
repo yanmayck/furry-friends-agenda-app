@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext } from "react";
 import { ClientProvider, useClients } from "./clients/ClientContext";
 import { PetProvider, usePets } from "./pets/PetContext";
@@ -5,6 +6,7 @@ import { GroomerProvider, useGroomers } from "./groomers/GroomerContext";
 import { PackageProvider, usePackages } from "./packages/PackageContext";
 import { AppointmentProvider, useAppointments } from "./appointments/AppointmentContext";
 import { CommissionProvider, useCommissions } from "./commissions/CommissionContext";
+import { GroomerPointsProvider, useGroomerPoints } from "./points/GroomerPointsContext";
 import { toast } from "@/components/ui/use-toast";
 import { 
   Client, 
@@ -12,6 +14,7 @@ import {
   Package, 
   Pet,
   Appointment,
+  GroomerPoint,
   generateId
 } from "./models/types";
 
@@ -50,7 +53,7 @@ interface StoreContextType {
   updateGroomer: (groomer: Groomer) => void;
   deleteGroomer: (id: string) => void;
   getGroomerById: (id: string) => Groomer | undefined;
-  getGroomerWorkload: (groomerId: string) => number;
+  getGroomerWorkload: (groomerId: string, completedOnly?: boolean) => number;
   
   // Appointment context
   appointments: Appointment[];
@@ -65,6 +68,12 @@ interface StoreContextType {
   getCommissionsByGroomerId: (groomerId: string) => any[];
   getTotalCommissionsByGroomerId: (groomerId: string, month?: number, year?: number) => number;
   getCommissionsByMonth: (month: number, year: number) => any[];
+  
+  // Groomer Points context
+  groomerPoints: GroomerPoint[];
+  addGroomerPoints: (groomerId: string, points: number, appointmentId: string) => void;
+  getGroomerMonthlyPoints: (groomerId: string, month?: number, year?: number) => number;
+  getGroomerPointsByMonth: (month: number, year: number) => GroomerPoint[];
 }
 
 // Create the context
@@ -88,12 +97,21 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
   const packageContext = usePackages();
   const appointmentContext = useAppointments();
   const commissionContext = useCommissions();
+  const pointsContext = useGroomerPoints();
 
   // Add specific custom functions that combine multiple contexts
   
   // Compute groomer workload without cyclic dependencies
-  const getGroomerWorkload = (groomerId: string) => {
+  const getGroomerWorkload = (groomerId: string, completedOnly: boolean = false) => {
     if (!appointmentContext.appointments) return 0;
+    
+    if (completedOnly) {
+      return appointmentContext.appointments.filter(
+        appointment => 
+          appointment.groomerId === groomerId && 
+          appointment.status === "completed"
+      ).length;
+    }
     
     return appointmentContext.appointments.filter(
       appointment => 
@@ -147,6 +165,7 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
     ...commissionContext,
     ...appointmentContext,
     ...groomerContext,
+    ...pointsContext,
     getGroomerWorkload,
     deleteGroomer,
     deletePackage, // Override the package context's deletePackage with our version that checks appointments
@@ -168,9 +187,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           <CommissionProvider>
             <AppointmentProvider>
               <PackageProvider>
-                <StoreProviderInner>
-                  {children}
-                </StoreProviderInner>
+                <GroomerPointsProvider>
+                  <StoreProviderInner>
+                    {children}
+                  </StoreProviderInner>
+                </GroomerPointsProvider>
               </PackageProvider>
             </AppointmentProvider>
           </CommissionProvider>
@@ -187,4 +208,5 @@ export type {
   Package,
   Pet,
   Appointment,
+  GroomerPoint,
 };

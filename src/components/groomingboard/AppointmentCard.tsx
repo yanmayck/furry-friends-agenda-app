@@ -3,12 +3,15 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { useStore } from "@/context/StoreContext";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Award } from "lucide-react";
 
 interface AppointmentCardProps {
   appointment: any;
+  onAssignPoints?: () => void;
 }
 
-export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
+export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onAssignPoints }) => {
   const { getClientById } = useStore();
   
   const client = getClientById(appointment.clientId);
@@ -61,9 +64,22 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment })
               Em andamento
             </Badge>
           ) : (
-            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-xs">
-              Concluído
-            </Badge>
+            <div className="flex items-center gap-1">
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-xs">
+                Concluído
+              </Badge>
+              {onAssignPoints && (
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={onAssignPoints}
+                  className="h-6 p-1"
+                  title="Atribuir pontos"
+                >
+                  <Award size={14} />
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </div>

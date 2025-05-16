@@ -3,14 +3,21 @@ import React, { useState, useEffect } from "react";
 import { useStore } from "@/context/StoreContext";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AppointmentCard } from "./AppointmentCard";
 import { GroomerColumn } from "./GroomerColumn";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "@/components/ui/use-toast";
+import { Award } from "lucide-react";
+import { AssignPointsDialog } from "./AssignPointsDialog";
 
 export const GroomingBoard: React.FC = () => {
-  const { appointments, updateAppointment, groomers } = useStore();
+  const { appointments, updateAppointment, groomers, autoAssignGroomer } = useStore();
   const [todayAppointments, setTodayAppointments] = useState<any[]>([]);
+  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
+  const [isPointsDialogOpen, setIsPointsDialogOpen] = useState(false);
+  
   const today = format(new Date(), 'yyyy-MM-dd');
   
   // Filter appointments for today
@@ -20,6 +27,28 @@ export const GroomingBoard: React.FC = () => {
     );
     setTodayAppointments(filteredAppointments);
   }, [appointments, today]);
+
+  // Handle auto assign all unassigned appointments
+  const handleAutoAssignAll = () => {
+    const unassignedAppointments = todayAppointments.filter(app => app.groomerId === null);
+    
+    if (unassignedAppointments.length === 0) {
+      toast({
+        title: "Nenhum agendamento para atribuir",
+        description: "Não há agendamentos não atribuídos.",
+      });
+      return;
+    }
+    
+    unassignedAppointments.forEach(app => {
+      autoAssignGroomer(app.id);
+    });
+    
+    toast({
+      title: "Atribuição automática concluída",
+      description: `${unassignedAppointments.length} agendamentos foram atribuídos automaticamente.`
+    });
+  };
 
   // Handle drag end event
   const handleDragEnd = (result: DropResult) => {
@@ -46,6 +75,12 @@ export const GroomingBoard: React.FC = () => {
         groomerId: destination.droppableId,
         status: appointment.status === "waiting" ? "progress" : appointment.status
       });
+      
+      // If appointment is completed, ask for point assignment
+      if (appointment.status === "completed") {
+        setSelectedAppointment(appointment);
+        setIsPointsDialogOpen(true);
+      }
     } else if (source.droppableId !== 'unassigned') {
       // If moving from a groomer column to the unassigned column
       updateAppointment({
@@ -67,8 +102,18 @@ export const GroomingBoard: React.FC = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col space-y-6">
-        <div className="text-lg font-semibold">
-          Agendamentos para hoje: {format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}
+        <div className="flex justify-between items-center">
+          <div className="text-lg font-semibold">
+            Agendamentos para hoje: {format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}
+          </div>
+          <Button 
+            onClick={handleAutoAssignAll}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            <Award size={18} />
+            Atribuir Automaticamente
+          </Button>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -97,7 +142,13 @@ export const GroomingBoard: React.FC = () => {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            <AppointmentCard appointment={appointment} />
+                            <AppointmentCard 
+                              appointment={appointment} 
+                              onAssignPoints={() => {
+                                setSelectedAppointment(appointment);
+                                setIsPointsDialogOpen(true);
+                              }}
+                            />
                           </div>
                         )}
                       </Draggable>
@@ -121,6 +172,15 @@ export const GroomingBoard: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Points assignment dialog */}
+      {selectedAppointment && (
+        <AssignPointsDialog 
+          isOpen={isPointsDialogOpen} 
+          onClose={() => setIsPointsDialogOpen(false)}
+          appointment={selectedAppointment}
+        />
+      )}
     </DragDropContext>
   );
 };

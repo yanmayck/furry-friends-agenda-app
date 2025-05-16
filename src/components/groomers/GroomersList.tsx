@@ -4,16 +4,20 @@ import { Layout } from "@/components/Layout";
 import { Groomer, useStore } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Edit, Trash2, Plus, Activity } from "lucide-react";
+import { Edit, Trash2, Plus, Activity, Award } from "lucide-react";
 import GroomerForm from "./GroomerForm";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const GroomersList: React.FC = () => {
-  const { groomers, deleteGroomer, getGroomerWorkload } = useStore();
+  const { groomers, deleteGroomer, getGroomerWorkload, getGroomerMonthlyPoints } = useStore();
   const { isAdmin } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [showStatusForm, setShowStatusForm] = useState(false);
+  const [showPointsDialog, setShowPointsDialog] = useState(false);
   const [editingGroomer, setEditingGroomer] = useState<Groomer | undefined>(undefined);
   
   const handleEditGroomer = (groomer: Groomer) => {
@@ -38,6 +42,10 @@ const GroomersList: React.FC = () => {
     setEditingGroomer(undefined);
   };
 
+  const handleShowPoints = () => {
+    setShowPointsDialog(true);
+  };
+
   const formatCommission = (percentage: number): string => {
     return `${percentage}%`;
   };
@@ -53,12 +61,23 @@ const GroomersList: React.FC = () => {
           <>
             <div className="flex justify-between">
               <h1 className="text-xl font-semibold">Tosadores</h1>
-              {isAdmin() && (
-                <Button onClick={() => setShowForm(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Tosador
+              <div className="space-x-2">
+                <Button 
+                  onClick={handleShowPoints}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Award className="h-4 w-4" />
+                  Ver Pontuações
                 </Button>
-              )}
+                
+                {isAdmin() && (
+                  <Button onClick={() => setShowForm(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Tosador
+                  </Button>
+                )}
+              </div>
             </div>
             
             {groomers.length === 0 ? (
@@ -77,6 +96,7 @@ const GroomersList: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groomers.map(groomer => {
                   const workload = getGroomerWorkload(groomer.id);
+                  const monthlyPoints = getGroomerMonthlyPoints(groomer.id);
                   
                   return (
                     <Card key={groomer.id} className="overflow-hidden">
@@ -105,6 +125,10 @@ const GroomersList: React.FC = () => {
                           <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Carga de trabalho:</span>
                             <span className="font-medium">{workload} agendamentos</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">Pontos (mês atual):</span>
+                            <span className="font-medium">{monthlyPoints} pontos</span>
                           </div>
                         </div>
                       </div>
@@ -136,6 +160,44 @@ const GroomersList: React.FC = () => {
             )}
           </>
         )}
+        
+        {/* Points Dialog */}
+        <Dialog open={showPointsDialog} onOpenChange={setShowPointsDialog}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Pontuação dos Tosadores - {format(new Date(), 'MMMM yyyy', { locale: ptBR })}</DialogTitle>
+            </DialogHeader>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tosador</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontos do Mês</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serviços Realizados</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Média de Pontos/Serviço</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {groomers.map(groomer => {
+                    const points = getGroomerMonthlyPoints(groomer.id);
+                    const services = getGroomerWorkload(groomer.id, true);
+                    const average = services > 0 ? (points / services).toFixed(1) : 0;
+                    
+                    return (
+                      <tr key={groomer.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{groomer.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{points}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{services}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{average}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
