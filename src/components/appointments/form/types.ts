@@ -13,6 +13,7 @@ export interface AppointmentFormData {
   packageId: string | null;
   transportType: TransportType;
   price: number;
+  points: number;
 }
 
 export interface FormFieldProps {

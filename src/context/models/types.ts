@@ -54,6 +54,7 @@ export interface Appointment {
   packageId?: string | null;
   transportType?: TransportType;
   price: number;
+  points?: number;
 }
 
 // Commission model

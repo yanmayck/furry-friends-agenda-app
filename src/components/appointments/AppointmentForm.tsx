@@ -10,6 +10,7 @@ import { AppointmentPriceField } from "./form/AppointmentPriceField";
 import { AppointmentGroomerField } from "./form/AppointmentGroomerField";
 import { AppointmentFormActions } from "./form/AppointmentFormActions";
 import { useAppointmentForm } from "./form/useAppointmentForm";
+import { AppointmentPointsField } from "./form/AppointmentPointsField";
 
 interface AppointmentFormProps {
   appointment?: Appointment;
@@ -60,6 +61,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose 
         />
         
         <AppointmentPriceField 
+          formData={formData} 
+          handleInputChange={handleInputChange} 
+          handleSelectChange={handleSelectChange} 
+        />
+        
+        <AppointmentPointsField 
           formData={formData} 
           handleInputChange={handleInputChange} 
           handleSelectChange={handleSelectChange} 

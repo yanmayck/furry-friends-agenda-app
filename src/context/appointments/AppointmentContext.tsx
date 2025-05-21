@@ -11,12 +11,14 @@ interface AppointmentContextType {
   updateAppointment: (appointment: Appointment) => void;
   deleteAppointment: (id: string) => void;
   autoAssignGroomer: (appointmentId: string) => void;
+  updateAppointmentPoints: (appointmentId: string, points: number) => void;
 }
 
 // Create a new type for the props that includes commission handling
 interface AppointmentProviderProps {
   children: React.ReactNode;
   addCommission?: (commission: Omit<any, "id">) => void;
+  addGroomerPoints?: (groomerId: string, points: number, appointmentId: string) => void;
 }
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined);
@@ -29,7 +31,7 @@ export const useAppointments = () => {
   return context;
 };
 
-export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ children, addCommission }) => {
+export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ children, addCommission, addGroomerPoints }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { groomers, getGroomerById } = useGroomers();
 
@@ -47,6 +49,12 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ childr
   const addAppointment = (appointment: Omit<Appointment, "id">) => {
     const newAppointment = { ...appointment, id: generateId() };
     setAppointments([...appointments, newAppointment]);
+    
+    // If points are specified and a groomer is assigned, add points
+    if (addGroomerPoints && newAppointment.groomerId && newAppointment.points) {
+      addGroomerPoints(newAppointment.groomerId, newAppointment.points, newAppointment.id);
+    }
+    
     toast({
       title: "Agendamento criado",
       description: `Agendamento para ${appointment.petName} foi criado com sucesso.`
@@ -74,6 +82,12 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ childr
       }
     }
     
+    // If points changed and a groomer is assigned, update points
+    if (addGroomerPoints && oldAppointment && oldAppointment.points !== updatedAppointment.points 
+        && updatedAppointment.groomerId && updatedAppointment.points) {
+      addGroomerPoints(updatedAppointment.groomerId, updatedAppointment.points, updatedAppointment.id);
+    }
+    
     setAppointments(
       appointments.map(appointment => 
         appointment.id === updatedAppointment.id ? updatedAppointment : appointment
@@ -94,6 +108,31 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ childr
       toast({
         title: "Agendamento excluído",
         description: `Agendamento para ${appointmentToDelete.petName} foi removido com sucesso.`
+      });
+    }
+  };
+  
+  // Update points for a specific appointment
+  const updateAppointmentPoints = (appointmentId: string, points: number) => {
+    const appointment = appointments.find(app => app.id === appointmentId);
+    
+    if (appointment) {
+      const updatedAppointment = { ...appointment, points };
+      
+      // If a groomer is assigned, update points
+      if (addGroomerPoints && updatedAppointment.groomerId) {
+        addGroomerPoints(updatedAppointment.groomerId, points, appointmentId);
+      }
+      
+      setAppointments(
+        appointments.map(app => 
+          app.id === appointmentId ? updatedAppointment : app
+        )
+      );
+      
+      toast({
+        title: "Pontos atualizados",
+        description: `${points} ${points === 1 ? 'ponto atribuído' : 'pontos atribuídos'} para o agendamento.`
       });
     }
   };
@@ -147,6 +186,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ childr
         updateAppointment,
         deleteAppointment,
         autoAssignGroomer,
+        updateAppointmentPoints
       }}
     >
       {children}

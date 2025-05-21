@@ -25,7 +25,8 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
     status: "waiting",
     packageId: null,
     transportType: "none" as TransportType,
-    price: 0
+    price: 0,
+    points: 1
   });
 
   const [selectedClientPetName, setSelectedClientPetName] = useState<string>("");
@@ -45,7 +46,8 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
         status: appointment.status,
         packageId: appointment.packageId || null,
         transportType: appointment.transportType || "none",
-        price: appointment.price
+        price: appointment.price,
+        points: appointment.points || 1
       });
       
       // Set pet name from the client
@@ -152,7 +154,8 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
       status: formData.status,
       packageId: formData.packageId,
       transportType: formData.transportType,
-      price: formData.price
+      price: formData.price,
+      points: parseInt(formData.points as any) || 1
     };
     
     if (isEditing && appointment) {

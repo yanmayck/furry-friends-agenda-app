@@ -50,6 +50,7 @@ interface StoreContextType {
   getGroomerMonthlyPoints: (groomerId: string, month?: number, year?: number) => number;
   getGroomerPointsByMonth: (month: number, year: number) => GroomerPoint[];
   addGroomerPoints: (groomerId: string, points: number, appointmentId: string) => void;
+  updateAppointmentPoints: (appointmentId: string, points: number) => void;
   autoAssignGroomer?: (appointmentId: string) => void;
 }
 
@@ -70,7 +71,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         <GroomerProvider>
           <PackageProvider>
             <CommissionProvider>
-              <StoreProviderWithCommissions>{children}</StoreProviderWithCommissions>
+              <GroomerPointsProvider>
+                <StoreProviderWithCommissions>{children}</StoreProviderWithCommissions>
+              </GroomerPointsProvider>
             </CommissionProvider>
           </PackageProvider>
         </GroomerProvider>
@@ -79,15 +82,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-// Intermediate component to access CommissionProvider context
+// Intermediate component to access CommissionProvider and GroomerPoints context
 const StoreProviderWithCommissions: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addCommission } = useCommissions();
+  const { addGroomerPoints } = useGroomerPoints();
   
   return (
-    <AppointmentProvider addCommission={addCommission}>
-      <GroomerPointsProvider>
-        <StoreProviderInner>{children}</StoreProviderInner>
-      </GroomerPointsProvider>
+    <AppointmentProvider 
+      addCommission={addCommission}
+      addGroomerPoints={addGroomerPoints}
+    >
+      <StoreProviderInner>{children}</StoreProviderInner>
     </AppointmentProvider>
   );
 };
@@ -96,7 +101,7 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
   const { clients, addClient, updateClient, deleteClient, getClientById } = useClients();
   const { pets, addPet, updatePet, deletePet, getPetById, getPetsByClientId } = usePets();
   const { groomers, addGroomer, updateGroomer, deleteGroomer, getGroomerById, getGroomerWorkload } = useGroomers();
-  const { appointments, addAppointment, updateAppointment, deleteAppointment, autoAssignGroomer } = useAppointments();
+  const { appointments, addAppointment, updateAppointment, deleteAppointment, autoAssignGroomer, updateAppointmentPoints } = useAppointments();
   const { commissions, addCommission, getCommissionsByGroomerId, getTotalCommissionsByGroomerId } = useCommissions();
   const { packages, addPackage, updatePackage, deletePackage, getPackageById } = usePackages();
   const { groomerPoints, addGroomerPoints, getGroomerMonthlyPoints, getGroomerPointsByMonth } = useGroomerPoints();
@@ -149,6 +154,7 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
     getGroomerMonthlyPoints,
     getGroomerPointsByMonth,
     addGroomerPoints,
+    updateAppointmentPoints,
     autoAssignGroomer,
   };
 

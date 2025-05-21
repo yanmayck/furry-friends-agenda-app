@@ -6,15 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2, Plus, Calendar } from "lucide-react";
+import { Edit, Trash2, Plus, Calendar, Award } from "lucide-react";
 import AppointmentForm from "./AppointmentForm";
 import { AppointmentStatus } from "@/context/StoreContext";
+import { PointsEditDialog } from "./PointsEditDialog";
 
 const AppointmentsList: React.FC = () => {
-  const { appointments, deleteAppointment, groomers, clients, updateAppointment, autoAssignGroomer, getClientById, getGroomerById } = useStore();
+  const { 
+    appointments, 
+    deleteAppointment, 
+    groomers, 
+    clients, 
+    updateAppointment, 
+    updateAppointmentPoints,
+    autoAssignGroomer, 
+    getClientById, 
+    getGroomerById 
+  } = useStore();
   
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<any>(undefined);
+  
+  // Points editing
+  const [isPointsDialogOpen, setIsPointsDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   
   // Filters
   const [dateFilter, setDateFilter] = useState("");
@@ -49,6 +64,17 @@ const AppointmentsList: React.FC = () => {
   
   const handleAutoAssign = (appointmentId: string) => {
     autoAssignGroomer(appointmentId);
+  };
+
+  const handleEditPoints = (appointmentId: string) => {
+    setSelectedAppointmentId(appointmentId);
+    setIsPointsDialogOpen(true);
+  };
+  
+  const handleSavePoints = (points: number) => {
+    if (selectedAppointmentId) {
+      updateAppointmentPoints(selectedAppointmentId, points);
+    }
   };
   
   // Apply filters
@@ -183,6 +209,9 @@ const AppointmentsList: React.FC = () => {
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pontos
+                      </th>
                       <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Ações
                       </th>
@@ -237,6 +266,21 @@ const AppointmentsList: React.FC = () => {
                               </SelectContent>
                             </Select>
                           </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <span className="text-sm text-gray-900 mr-2">
+                                {appointment.points || 1}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEditPoints(appointment.id)}
+                                className="p-1 h-8"
+                              >
+                                <Award className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
                           <td className="px-4 py-4 whitespace-nowrap text-right">
                             <div className="flex justify-end space-x-2">
                               <Button size="sm" variant="outline" onClick={() => handleEditAppointment(appointment)}>
@@ -251,7 +295,7 @@ const AppointmentsList: React.FC = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6} className="px-4 py-4 text-center text-sm text-gray-500">
+                        <td colSpan={7} className="px-4 py-4 text-center text-sm text-gray-500">
                           {dateFilter || statusFilter !== "all" || groomerFilter !== "all"
                             ? "Nenhum agendamento encontrado com os filtros selecionados."
                             : "Nenhum agendamento cadastrado. Clique em 'Novo Agendamento' para adicionar."}
@@ -262,6 +306,15 @@ const AppointmentsList: React.FC = () => {
                 </table>
               </div>
             </Card>
+            
+            {/* Points edit dialog */}
+            <PointsEditDialog
+              isOpen={isPointsDialogOpen}
+              onClose={() => setIsPointsDialogOpen(false)}
+              initialPoints={selectedAppointmentId ? 
+                (appointments.find(a => a.id === selectedAppointmentId)?.points || 1) : 1}
+              onSave={handleSavePoints}
+            />
           </>
         )}
       </div>
