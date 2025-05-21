@@ -69,17 +69,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       <PetProvider>
         <GroomerProvider>
           <PackageProvider>
-            <AppointmentProvider>
-              <CommissionProvider>
-                <GroomerPointsProvider>
-                  <StoreProviderInner>{children}</StoreProviderInner>
-                </GroomerPointsProvider>
-              </CommissionProvider>
-            </AppointmentProvider>
+            <CommissionProvider>
+              <StoreProviderWithCommissions>{children}</StoreProviderWithCommissions>
+            </CommissionProvider>
           </PackageProvider>
         </GroomerProvider>
       </PetProvider>
     </ClientProvider>
+  );
+};
+
+// Intermediate component to access CommissionProvider context
+const StoreProviderWithCommissions: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { addCommission } = useCommissions();
+  
+  return (
+    <AppointmentProvider addCommission={addCommission}>
+      <GroomerPointsProvider>
+        <StoreProviderInner>{children}</StoreProviderInner>
+      </GroomerPointsProvider>
+    </AppointmentProvider>
   );
 };
 

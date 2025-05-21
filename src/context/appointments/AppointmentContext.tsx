@@ -1,9 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Appointment, generateId } from "../models/types";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { toast } from "@/components/ui/use-toast";
 import { useGroomers } from "../groomers/GroomerContext";
-import { useCommissions } from "../commissions/CommissionContext";
 
 interface AppointmentContextType {
   appointments: Appointment[];
@@ -11,6 +11,12 @@ interface AppointmentContextType {
   updateAppointment: (appointment: Appointment) => void;
   deleteAppointment: (id: string) => void;
   autoAssignGroomer: (appointmentId: string) => void;
+}
+
+// Create a new type for the props that includes commission handling
+interface AppointmentProviderProps {
+  children: React.ReactNode;
+  addCommission?: (commission: Omit<any, "id">) => void;
 }
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(undefined);
@@ -23,10 +29,9 @@ export const useAppointments = () => {
   return context;
 };
 
-export const AppointmentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({ children, addCommission }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { groomers, getGroomerById } = useGroomers();
-  const { addCommission } = useCommissions();
 
   // Load appointments from localStorage on mount
   useEffect(() => {
@@ -51,8 +56,8 @@ export const AppointmentProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const updateAppointment = (updatedAppointment: Appointment) => {
     const oldAppointment = appointments.find(app => app.id === updatedAppointment.id);
     
-    // If the appointment is being marked as completed, generate a commission
-    if (oldAppointment && oldAppointment.status !== "completed" && updatedAppointment.status === "completed" && updatedAppointment.groomerId) {
+    // If the appointment is being marked as completed and we have a commission handler, generate a commission
+    if (addCommission && oldAppointment && oldAppointment.status !== "completed" && updatedAppointment.status === "completed" && updatedAppointment.groomerId) {
       const groomer = getGroomerById(updatedAppointment.groomerId);
       
       if (groomer) {
