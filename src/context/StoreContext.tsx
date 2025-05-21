@@ -69,13 +69,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       <PetProvider>
         <GroomerProvider>
           <PackageProvider>
-            <CommissionProvider>
-              <AppointmentProvider>
+            <AppointmentProvider>
+              <CommissionProvider>
                 <GroomerPointsProvider>
                   <StoreProviderInner>{children}</StoreProviderInner>
                 </GroomerPointsProvider>
-              </AppointmentProvider>
-            </CommissionProvider>
+              </CommissionProvider>
+            </AppointmentProvider>
           </PackageProvider>
         </GroomerProvider>
       </PetProvider>
@@ -92,7 +92,20 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
   const { packages, addPackage, updatePackage, deletePackage, getPackageById } = usePackages();
   const { groomerPoints, addGroomerPoints, getGroomerMonthlyPoints, getGroomerPointsByMonth } = useGroomerPoints();
 
-  const store = {
+  // Fix for groomer workload calculation using appointments from context
+  const calculateGroomerWorkload = (groomerId: string, onlyCompletedAppointments?: boolean) => {
+    if (onlyCompletedAppointments) {
+      return appointments.filter(
+        appointment => appointment.groomerId === groomerId && appointment.status === "completed"
+      ).length;
+    }
+    
+    return appointments.filter(
+      appointment => appointment.groomerId === groomerId && appointment.status !== "canceled"
+    ).length;
+  };
+
+  const store: StoreContextType = {
     clients,
     pets,
     groomers,
@@ -123,7 +136,7 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
     getPetsByClientId,
     getGroomerById,
     getPackageById,
-    getGroomerWorkload,
+    getGroomerWorkload: calculateGroomerWorkload,
     getGroomerMonthlyPoints,
     getGroomerPointsByMonth,
     addGroomerPoints,

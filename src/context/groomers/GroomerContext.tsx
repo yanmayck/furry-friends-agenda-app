@@ -42,10 +42,9 @@ export const GroomerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return groomers.find(groomer => groomer.id === id);
   };
   
-  // Modified to accept an optional parameter for filtering completed appointments
+  // This is a placeholder implementation. The actual implementation is in StoreContext
   const getGroomerWorkload = (groomerId: string, onlyCompletedAppointments?: boolean) => {
-    // Since appointments are passed from a higher context, we return 0 here
-    // The actual implementation is in the StoreProviderInner component
+    // Since this is overridden in StoreContext, we return a default value here
     return 0;
   };
   

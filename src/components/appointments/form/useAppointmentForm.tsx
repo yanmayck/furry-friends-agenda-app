@@ -24,7 +24,7 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
     groomerId: null,
     status: "waiting",
     packageId: null,
-    transportType: "client",
+    transportType: "none" as TransportType,
     price: 0
   });
 
@@ -44,7 +44,7 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
         groomerId: appointment.groomerId,
         status: appointment.status,
         packageId: appointment.packageId || null,
-        transportType: appointment.transportType || "client",
+        transportType: appointment.transportType || "none",
         price: appointment.price
       });
       
@@ -83,7 +83,7 @@ export const useAppointmentForm = ({ appointment, onClose }: UseAppointmentFormP
     if (formData.packageId) {
       const selectedPackage = packages.find(pkg => pkg.id === formData.packageId);
       if (selectedPackage) {
-        price = formData.transportType === "client" ? selectedPackage.basePrice : selectedPackage.pickupPrice;
+        price = formData.transportType === "none" ? selectedPackage.basePrice : selectedPackage.pickupPrice;
       }
     } else {
       price = servicePrices[formData.serviceType] || 0;
