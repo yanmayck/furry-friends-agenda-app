@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Sheet,
@@ -18,6 +17,7 @@ import {
   User as UserIcon,
   Package as PackageIcon,
   Scissors,
+  BarChart,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -32,7 +32,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, activePage, setActivePage }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -43,6 +43,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activePage, setActivePage }) 
     { id: "groomers", label: "Tosadores", icon: <UserIcon className="h-4 w-4" /> },
     { id: "packages", label: "Pacotes", icon: <PackageIcon className="h-4 w-4" /> },
   ];
+  
+  // Adicionar item de menu Relatórios apenas para administradores
+  if (isAdmin) {
+    menuItems.push({ id: "reports", label: "Relatórios", icon: <BarChart className="h-4 w-4" /> });
+  }
 
   const isActive = (menuId: string) => {
     // Use location.pathname to check for active state
