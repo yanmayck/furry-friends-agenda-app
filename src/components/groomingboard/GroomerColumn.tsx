@@ -13,16 +13,16 @@ interface GroomerColumnProps {
 
 export const GroomerColumn: React.FC<GroomerColumnProps> = ({ groomer, appointments }) => {
   return (
-    <Card className="p-4 h-full">
+    <Card className="p-3 lg:p-4 h-full">
       <div className="flex flex-col">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold">{groomer.name}</h3>
+        <div className="flex justify-between items-center mb-2 lg:mb-4">
+          <h3 className="font-semibold text-sm lg:text-base">{groomer.name}</h3>
           <Badge
             variant={groomer.status === "available" ? "outline" : "secondary"}
             className={
               groomer.status === "available" 
-                ? "bg-green-50 text-green-700 hover:bg-green-50" 
-                : "bg-gray-100 text-gray-700 hover:bg-gray-100"
+                ? "bg-green-50 text-green-700 hover:bg-green-50 text-xs" 
+                : "bg-gray-100 text-gray-700 hover:bg-gray-100 text-xs"
             }
           >
             {groomer.status === "available" ? "Disponível" : "Ocupado"}
@@ -34,25 +34,31 @@ export const GroomerColumn: React.FC<GroomerColumnProps> = ({ groomer, appointme
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className="min-h-[300px] bg-slate-50 p-2 rounded space-y-2"
+              className="min-h-[150px] max-h-[350px] overflow-y-auto bg-slate-50 p-2 rounded space-y-2"
             >
-              {appointments.map((appointment, index) => (
-                <Draggable 
-                  key={appointment.id} 
-                  draggableId={appointment.id} 
-                  index={index}
-                >
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <AppointmentCard appointment={appointment} />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {appointments.length === 0 ? (
+                <p className="text-center text-xs text-muted-foreground py-4">
+                  Nenhum agendamento atribuído
+                </p>
+              ) : (
+                appointments.map((appointment, index) => (
+                  <Draggable 
+                    key={appointment.id} 
+                    draggableId={appointment.id} 
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <AppointmentCard appointment={appointment} />
+                      </div>
+                    )}
+                  </Draggable>
+                ))
+              )}
               {provided.placeholder}
             </div>
           )}

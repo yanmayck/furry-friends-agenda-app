@@ -38,16 +38,16 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
   };
 
   return (
-    <Card className={`p-3 border-l-4 ${getStatusBgColor()} hover:shadow-md transition-shadow`}>
+    <Card className={`p-2 sm:p-3 border-l-4 ${getStatusBgColor()} hover:shadow-md transition-shadow`}>
       <div className="space-y-1">
         <div className="flex justify-between items-start">
-          <div className="font-medium">{appointment.petName}</div>
+          <div className="font-medium text-sm sm:text-base">{appointment.petName}</div>
           <Badge variant="outline" className="text-xs">
             {appointment.time}
           </Badge>
         </div>
         
-        <div className="text-sm text-gray-600">
+        <div className="text-xs sm:text-sm text-gray-600">
           {client ? client.tutorName : "Cliente não encontrado"}
         </div>
         
@@ -73,7 +73,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, o
                   size="sm" 
                   variant="ghost" 
                   onClick={onAssignPoints}
-                  className="h-6 p-1"
+                  className="h-5 sm:h-6 p-0 sm:p-1"
                   title="Atribuir pontos"
                 >
                   <Award size={14} />
