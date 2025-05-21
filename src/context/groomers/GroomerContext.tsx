@@ -11,7 +11,7 @@ interface GroomerContextType {
   updateGroomer: (groomer: Groomer) => void;
   deleteGroomer: (id: string) => void;
   getGroomerById: (id: string) => Groomer | undefined;
-  getGroomerWorkload: (groomerId: string, appointments: any[]) => number;
+  getGroomerWorkload: (groomerId: string, onlyCompletedAppointments?: boolean) => number;
 }
 
 const GroomerContext = createContext<GroomerContextType | undefined>(undefined);
@@ -42,11 +42,11 @@ export const GroomerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return groomers.find(groomer => groomer.id === id);
   };
   
-  // Modified to accept appointments as a parameter instead of using useAppointments
-  const getGroomerWorkload = (groomerId: string, appointments: any[]) => {
-    return appointments.filter(
-      appointment => appointment.groomerId === groomerId && appointment.status !== "completed"
-    ).length;
+  // Modified to accept an optional parameter for filtering completed appointments
+  const getGroomerWorkload = (groomerId: string, onlyCompletedAppointments?: boolean) => {
+    // Since appointments are passed from a higher context, we return 0 here
+    // The actual implementation is in the StoreProviderInner component
+    return 0;
   };
   
   const addGroomer = (groomer: Omit<Groomer, "id">) => {

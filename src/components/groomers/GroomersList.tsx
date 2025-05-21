@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { Groomer, useStore } from "@/context/StoreContext";
+import { useStore, Groomer } from "@/context/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Edit, Trash2, Plus, Activity, Award } from "lucide-react";
@@ -95,7 +95,7 @@ const GroomersList: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groomers.map(groomer => {
-                  const workload = getGroomerWorkload(groomer.id);
+                  const workload = getGroomerWorkload(groomer.id, false);
                   const monthlyPoints = getGroomerMonthlyPoints(groomer.id);
                   
                   return (
@@ -182,7 +182,7 @@ const GroomersList: React.FC = () => {
                   {groomers.map(groomer => {
                     const points = getGroomerMonthlyPoints(groomer.id);
                     const services = getGroomerWorkload(groomer.id, true);
-                    const average = services > 0 ? (points / services).toFixed(1) : 0;
+                    const average = services > 0 ? (points / services).toFixed(1) : "0";
                     
                     return (
                       <tr key={groomer.id}>

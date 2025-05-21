@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Client, Pet, Groomer, Appointment, Commission, Package, GroomerPoint } from "./models/types";
 import { ClientProvider, useClients } from "./clients/ClientContext";
@@ -8,6 +9,8 @@ import { CommissionProvider, useCommissions } from "./commissions/CommissionCont
 import { PackageProvider, usePackages } from "./packages/PackageContext";
 import { GroomerPointsProvider, useGroomerPoints } from "./points/GroomerPointsContext";
 
+// Re-export types for components to use
+export type { Client, Pet, Groomer, Appointment, Commission, Package, GroomerPoint };
 export type ServiceType = "bath" | "grooming" | "both" | "package";
 export type TransportType = "pickup" | "delivery" | "none";
 export type AppointmentStatus = "waiting" | "progress" | "completed" | "canceled";
@@ -34,23 +37,30 @@ interface StoreContextType {
   deleteAppointment: (id: string) => void;
   addCommission: (commission: Omit<Commission, "id">) => void;
   getCommissionsByGroomerId: (groomerId: string) => Commission[];
+  getTotalCommissionsByGroomerId: (groomerId: string, month?: number, year?: number) => number;
   addPackage: (pack: Omit<Package, "id">) => void;
   updatePackage: (pack: Package) => void;
   deletePackage: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   getPetById: (id: string) => Pet | undefined;
+  getPetsByClientId?: (clientId: string) => Pet[];
   getGroomerById: (id: string) => Groomer | undefined;
   getPackageById: (id: string) => Package | undefined;
-  getGroomerWorkload: (groomerId: string, appointments: any[]) => number;
+  getGroomerWorkload: (groomerId: string, onlyCompletedAppointments?: boolean) => number;
   getGroomerMonthlyPoints: (groomerId: string, month?: number, year?: number) => number;
   getGroomerPointsByMonth: (month: number, year: number) => GroomerPoint[];
   addGroomerPoints: (groomerId: string, points: number, appointmentId: string) => void;
+  autoAssignGroomer?: (appointmentId: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
 export const useStore = () => {
-  return useContext(StoreContext);
+  const context = useContext(StoreContext);
+  if (!context) {
+    throw new Error("useStore must be used within a StoreProvider");
+  }
+  return context;
 };
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -59,13 +69,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       <PetProvider>
         <GroomerProvider>
           <PackageProvider>
-            <AppointmentProvider>
-              <CommissionProvider>
+            <CommissionProvider>
+              <AppointmentProvider>
                 <GroomerPointsProvider>
                   <StoreProviderInner>{children}</StoreProviderInner>
                 </GroomerPointsProvider>
-              </CommissionProvider>
-            </AppointmentProvider>
+              </AppointmentProvider>
+            </CommissionProvider>
           </PackageProvider>
         </GroomerProvider>
       </PetProvider>
@@ -75,10 +85,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { clients, addClient, updateClient, deleteClient, getClientById } = useClients();
-  const { pets, addPet, updatePet, deletePet, getPetById } = usePets();
+  const { pets, addPet, updatePet, deletePet, getPetById, getPetsByClientId } = usePets();
   const { groomers, addGroomer, updateGroomer, deleteGroomer, getGroomerById, getGroomerWorkload } = useGroomers();
-  const { appointments, addAppointment, updateAppointment, deleteAppointment } = useAppointments();
-  const { commissions, addCommission, getCommissionsByGroomerId } = useCommissions();
+  const { appointments, addAppointment, updateAppointment, deleteAppointment, autoAssignGroomer } = useAppointments();
+  const { commissions, addCommission, getCommissionsByGroomerId, getTotalCommissionsByGroomerId } = useCommissions();
   const { packages, addPackage, updatePackage, deletePackage, getPackageById } = usePackages();
   const { groomerPoints, addGroomerPoints, getGroomerMonthlyPoints, getGroomerPointsByMonth } = useGroomerPoints();
 
@@ -104,17 +114,20 @@ const StoreProviderInner: React.FC<{ children: React.ReactNode }> = ({ children 
     deleteAppointment,
     addCommission,
     getCommissionsByGroomerId,
+    getTotalCommissionsByGroomerId,
     addPackage,
     updatePackage,
     deletePackage,
     getClientById,
     getPetById,
+    getPetsByClientId,
     getGroomerById,
     getPackageById,
     getGroomerWorkload,
     getGroomerMonthlyPoints,
     getGroomerPointsByMonth,
     addGroomerPoints,
+    autoAssignGroomer,
   };
 
   return (
