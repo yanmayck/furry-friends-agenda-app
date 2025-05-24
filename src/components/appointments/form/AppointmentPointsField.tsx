@@ -9,7 +9,7 @@ export const AppointmentPointsField: React.FC<FormFieldProps> = ({
   handleInputChange 
 }) => {
   return (
-    <div>
+    <div className="space-y-2">
       <Label htmlFor="points">Pontos</Label>
       <Input
         id="points"
@@ -21,7 +21,7 @@ export const AppointmentPointsField: React.FC<FormFieldProps> = ({
         onChange={handleInputChange}
         className="w-full"
       />
-      <p className="text-sm text-gray-500 mt-1">
+      <p className="text-sm text-gray-500">
         Defina a quantidade de pontos para este agendamento (1-3)
       </p>
     </div>
