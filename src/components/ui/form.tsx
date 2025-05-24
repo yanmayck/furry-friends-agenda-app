@@ -52,8 +52,20 @@ const useFormField = () => {
   if (!formContext) {
     throw new Error("useFormField should be used within <Form>")
   }
+
+  // Additional safety check to ensure formContext has required methods
+  if (!formContext.getFieldState || !formContext.formState) {
+    console.error("Form context is missing required methods:", formContext)
+    throw new Error("Form context is incomplete - missing getFieldState or formState")
+  }
   
   const { getFieldState, formState } = formContext
+  
+  // Ensure fieldContext.name exists before calling getFieldState
+  if (!fieldContext.name) {
+    throw new Error("Field name is required")
+  }
+  
   const fieldState = getFieldState(fieldContext.name, formState)
 
   const { id } = itemContext
